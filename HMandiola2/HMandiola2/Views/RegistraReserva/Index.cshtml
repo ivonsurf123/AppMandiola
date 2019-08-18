@@ -1,0 +1,165 @@
+﻿ 
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="well well-sm">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <legend class="text-left header">Reservación </legend>
+                    </fieldset>
+                    <div class="row ">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font">Llegada</span>
+                            <input type="date" class="form-control" id="datein" onchange="calDays();" />
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Salida</span>
+                            <input type="date" class="form-control" id="dateOut" onchange="calDays();" />
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <span class="help-block text-muted small-font">Noches</span>
+                            <input type="text" class="form-control" readonly value="0" id="diffDays" />
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Adultos</span>
+                            <input type="number" class="form-control" min="0" value="0" id="adultos" />
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Niños </span>
+                            <input type="number" class="form-control" min="0" value="0" id="ninnos" />
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Habitaciones</span>
+                            <br />
+                            <select multiple="multiple" id="ddlhab" style="width:195px;height:200px"></select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Código Promocional</span>
+                            <input type="text" class="form-control" id="promocod" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Tipo de Pago</span>
+                            <br />
+                            <label><input type="radio" id="SinPago" name="TipoPago" value="1" checked> Reserva Sin Pago</label><br>
+                            <label><input type="radio" id="ConPago" name="TipoPago" value="2"> Tarjeta Crédito/Débito</label>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row " id="Tarjeta" style="display:none">
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Número Terjeta</span>
+                            <br />
+                            <input type="text" class="form-control" id="numTar" />
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Fecha Expiración</span>
+                            <input type="text" class="form-control" id="fecExpira" placeholder="mm/aa" />
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Código Seguridad</span>
+                            <input type="text" class="form-control" id="codSeg" placeholder="CVV" />
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <span class="help-block text-muted small-font"> Tipo Tarjeta</span>
+                            <select id="TipoTarjeta" class="form-control">
+                                <option value="visa"> Visa</option>
+                                <option value="mastercard"> MasterCard</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row " style="width:50%">
+                        <div class="col-md-6 col-sm-6 col-xs-6 pad-adjust">
+                            <input type="submit" class="btn btn-warning btn-block" value="RESERVAR" onclick="reservar();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    $(function () {
+        $.ajax({
+            url: '@Url.Action("LoadHab", "Reserva")',
+            type: 'POST',
+            data: JSON.stringify({}),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    $('#ddlhab').append('<option value="' + data[i].ID_Habitacion + '">'
+                        + data[i].Tipo_Habitacion + ' C.I = ' + data[i].CamasIndividuales + ' C.M = ' + data[i].CamasMatrimoniales +
+                        '</option>');
+                }
+                
+            }
+        });
+    });
+
+    $('input[type=radio][name=TipoPago]').change(function () {
+        if (this.value == '2') {
+            $("#Tarjeta").show();
+        }
+        else {
+            $("#Tarjeta").hide();
+        }
+    });
+
+     function Reservar() {
+
+        var usuario = {
+            Correo: $('#Cliente').val(),
+            Contrasena: $('#Clave').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Login", "Login")',
+            processData: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(usuario),
+            success: function (response) {
+                if (response.Success == true) { 
+                    $("#FormAuth").submit();
+                } else {
+                    alert('Ha ocurrido un problema, intentalo mas tarde!!');
+                }
+            }
+        });
+    }
+
+    function calDays() {
+        var dateIn = Date.parse($("#dateOut").val());
+        var dateOut = Date.parse($("#datein").val());
+
+        if (isNaN(dateIn) == false && isNaN(dateOut) == false) {
+            var diferencia = Math.floor((dateIn - dateOut) / 86400000);
+            $("#diffDays").val(diferencia);
+
+        }
+
+    }
+
+
+
+</script>
+

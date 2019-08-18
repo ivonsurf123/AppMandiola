@@ -1,0 +1,183 @@
+﻿<head>
+    <!--inicio del css para el captcha-->
+    <style>
+
+        .capbox {
+            background-color: #33c7d4;
+            border: #33c7d4 0px solid;
+            border-width: 0px 12px 0px 0px;
+            display: inline-block;
+            *display: inline;
+            zoom: 1;
+            border-radius: 4px;
+            /* FOR IE7-8 */
+            padding: 8px 40px 8px 8px;
+        }
+
+        .capbox-inner {
+            font: bold 11px arial, sans-serif;
+            color: #000000;
+            background-color: #abeaeb;
+            margin: 5px auto 0px auto;
+            padding: 3px;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border-radius: 4px;
+        }
+
+        #CaptchaDiv {
+            font: bold 17px verdana, arial, sans-serif;
+            font-style: italic;
+            color: #000000;
+            background-color: #FFFFFF;
+            padding: 4px;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border-radius: 4px;
+        }
+
+        #CaptchaInput {
+            margin: 1px 0px 1px 0px;
+            width: 135px;
+        }
+    </style>
+    <!--fin del css del captcha-->
+</head>
+<body background="https://www.larutadelsorigens.cat/wallpic/full/39-392667_cuarto-de-hotel-de-5-estrellas-5-star.jpg">
+
+
+    <script>
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '2693833603984586',
+                autoLogAppEvents: true,
+                xfbml: true,
+                version: 'v4.0'
+            });
+        };
+    </script>
+    <script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script async defer crossorigin="anonymous"
+            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v4.0"></script>
+
+    <div align="center">
+        <div class="container divForm col-md-offset-4 col-md-5 text-center mediumContainer">
+            <div class="row ">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h1>
+                        <bold>
+                            Login
+                        </bold>
+                    </h1>
+                </div>
+                <div class="col-md-10 col-md-offset-1 text-left ">
+                    <h3>
+                        Correo
+                    </h3>
+                    <input type="email" class="form-control col-lg-12 col-md-12 col-xs-12" id="correo" aria-describedby="email" placeholder="Ingresar correo">
+                    <h3>
+                        Contraseña
+                    </h3>
+                    <input type="password" class="form-control col-lg-12 col-md-12 col-xs-12" id="contrasena" placeholder="Contraseña">
+                    <br>
+                    <!-- START CAPTCHA -->
+                    <div class="capbox">
+                        <div id="CaptchaDiv"></div>
+                        <div class="capbox-inner">
+                            Type the above number:<br>
+                            <input type="hidden" id="txtCaptcha">
+                            <input type="text" name="CaptchaInput" id="CaptchaInput" size="15"><br>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <!-- END CAPTCHA -->
+                    <button type="submit" id="loginButton" name="loginButton" value="loginButton"
+                            class="btn btn-info btn-xl col-lg-12 col-md-12 col-xs-12">
+                        Ingresar
+                    </button>
+                    <br>
+                    <br>
+                    <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with"
+                         data-auto-logout-link="false" data-use-continue-as="false"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+    <script>
+
+    // Evento que envía una petición Ajax al servidor
+    $('#loginButton').click(function (e) {
+
+        var usuario = {
+            Correo: $('#correo').val(),
+            Contrasena: $('#contrasena').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Login", "Login")',
+        processData: false,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(usuario),
+        success: function (response) {
+            if (response.Success == true) {
+                location.href = "@Url.Action("Index", "Core")";
+            }else {
+                alert('Ha ocurrido un problema, intentalo mas tarde!!');
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            alert('Error!!');
+            guardarError(xhr.responseText);
+        }
+    });
+});
+
+        // Captcha Script
+
+        function checkform(theform) {
+            var why = "";
+
+            if (theform.CaptchaInput.value == "") {
+                why += "- Please Enter CAPTCHA Code.\n";
+            }
+            if (theform.CaptchaInput.value != "") {
+                if (ValidCaptcha(theform.CaptchaInput.value) == false) {
+                    why += "- The CAPTCHA Code Does Not Match.\n";
+                }
+            }
+            if (why != "") {
+                alert(why);
+                return false;
+            }
+        }
+
+        var a = Math.ceil(Math.random() * 9) + '';
+        var b = Math.ceil(Math.random() * 9) + '';
+        var c = Math.ceil(Math.random() * 9) + '';
+        var d = Math.ceil(Math.random() * 9) + '';
+        var e = Math.ceil(Math.random() * 9) + '';
+
+        var code = a + b + c + d + e;
+        document.getElementById("txtCaptcha").value = code;
+        document.getElementById("CaptchaDiv").innerHTML = code;
+
+        // Validate input against the generated number
+        function ValidCaptcha() {
+            var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
+            var str2 = removeSpaces(document.getElementById('CaptchaInput').value);
+            if (str1 == str2) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // Remove the spaces from the entered and generated code
+        function removeSpaces(string) {
+            return string.split(' ').join('');
+        }
+    </script>

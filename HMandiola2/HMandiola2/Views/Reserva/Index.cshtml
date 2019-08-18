@@ -1,0 +1,70 @@
+﻿@using CaptchaMvc.HtmlHelpers 
+@using CaptchaMvc;
+
+@model HMandiola2.Models.VerifyUser
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@using (Html.BeginForm("ValidarCatcha", "Reserva", FormMethod.Post, new { id = "FormAuth" }))
+{
+    @Html.ValidationSummary(true)
+
+<fieldset>
+    <legend>Verificar(<a href="#">Crear Usuario</a>)</legend>
+
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Cliente)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.Cliente)
+        @Html.ValidationMessageFor(model => model.Cliente)
+    </div>
+
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Clave)
+    </div>
+    <div class="editor-field">
+        @Html.PasswordFor(model => model.Clave)
+        @Html.ValidationMessageFor(model => model.Clave)
+    </div>
+
+    @Html.Captcha(3)
+    <br />
+    <p class="Error">  @ViewBag.ErrMessage </p>
+    <p>
+        <input type="button" onclick="onValidate()" id="sendid" value="Enviar"/>
+    </p>
+</fieldset>
+}
+
+
+<script>
+ 
+
+    function onValidate() {
+
+        var usuario = {
+            Correo: $('#Cliente').val(),
+            Contrasena: $('#Clave').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Login", "Login")',
+            processData: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(usuario),
+            success: function (response) {
+                if (response.Success == true) { 
+                    $("#FormAuth").submit();
+                } else {
+                    var redirect = '@Url.Action("Registrar", "Login")';
+                    window.location.href = redirect;
+                }
+            }
+        });
+      }
+    </script>

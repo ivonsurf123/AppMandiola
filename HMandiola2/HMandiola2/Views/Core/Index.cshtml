@@ -1,0 +1,13 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    HMandiola2.Data.sproc_hoteles_LoginCliente_Result cliente =
+        (HMandiola2.Data.sproc_hoteles_LoginCliente_Result)System.Web.HttpContext.Current.Session["clienteLogueado"];
+}
+<body background="https://www.solidbackgrounds.com/images/1280x720/1280x720-peach-solid-color-background.jpg">
+    <h2>Bienvenido - @cliente.nombre @cliente.primerApellido</h2>
+    <video autoplay muted loop id="myVideo">
+        <source src="~/Assets/Video/Hoteles.mp4" type="video/mp4">
+
+    </video>
+</body>
